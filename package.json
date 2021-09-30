@@ -12,6 +12,7 @@
   "dependencies": {
     "@mapbox/node-pre-gyp": "^1.0.5",
     "express": "^4.17.1",
+    "mysql": "^2.18.1",
     "sqlite3": "^4.2.0"
   }
 }
