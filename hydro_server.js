@@ -4,13 +4,17 @@ const mysql = require('mysql')
 const express = require('express')
 const app = express()
 
-let path = "/home/pi/iothydro"
+const path = require('path')
+const envPath = path.resolve(process.cwd(), '.env.local')
+
+require('dotenv').config({ path: envPath })
 
 let db = mysql.createConnection({
-	host: "localhost",
-	user: process.env.username,
-	password: process.env.password,
-	database: "sensors",
+	host: process.env.MYSQL_HOST,
+	user: process.env.MYSQL_USERNAME,
+	password: process.env.MYSQL_PASSWORD,
+	port: process.env.MYSQL_PORT,
+	database: process.env.MYSQL_DATABASE,
 });
 
 let sql = "SELECT * FROM readings ORDER BY id DESC LIMIT 0,1";
