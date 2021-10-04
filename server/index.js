@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const mysql = require('mysql')
+const { restart } = require('nodemon')
 
 const path = require('path')
 const envPath = path.resolve(process.cwd(), '.env.local')
@@ -31,8 +32,9 @@ app.get('/', (req, res) => {
 		temp = result[0].temperature
 		hum = result[0].humidity
 		distance = result[0].distance
+
+		res.send(outputs)
     })
-    // res.send('hey, dude')
 })
 
 app.listen(3001, () => {
