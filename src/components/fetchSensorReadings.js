@@ -2,7 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 
 const FetchSensorReadings = ({}) => {
-    const [state, setState] = useState({loading: true, stateData: []});
+    const [state, setState] = useState({loading: true, stateData: {}});
 
     async function componentMounted() {
         const url = "iothydro.ddns.net/latest-readings";
@@ -12,9 +12,12 @@ const FetchSensorReadings = ({}) => {
         console.log(state);
     }
 
+    componentMounted();
+
     return (
+
         <div>
-            {state.loading ? <div>Loading...</div> : <div>Timestamp: {state.stateData.timestamp}</div>}
+            {state.loading ? <div>Loading...</div> : <div>Timestamp: {state.stateData}</div>}
         </div>
     );
 }
