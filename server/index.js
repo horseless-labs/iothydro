@@ -8,7 +8,13 @@ const latestReadings = require('./routes/latestReadingsRouter')
 const path = require('path')
 const envPath = path.resolve(process.cwd(), '.env.local')
 
+const cors = require('cors')
+
 require('dotenv').config({ path: envPath })
+
+app.use(cors({
+    origin: "*",
+}))
 
 app.use(bodyParser.json())
 app.use(
