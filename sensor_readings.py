@@ -73,7 +73,7 @@ if __name__ == '__main__':
             print(distance(DW4[0], DW4[1]))
             ret, frame = WEBCAM_DW3_DW4.read()
             cv2.imwrite("DW3_DW4-" + time.asctime() + ".jpg", frame)
-            time.sleep(600)
+            time.sleep(5)
 
         GPIO.cleanup()
         WEBCAM_DW3_DW4.release()
