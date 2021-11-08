@@ -3,7 +3,7 @@ const config = require('../config');
 
 async function getLatest() {
     // Currently limited to just the latest readings
-    const row = await db.query(`SELECT * FROM readings ORDER BY id DESC LIMIT 0, 1`);
+    const row = await db.query(`SELECT * FROM auto_readings ORDER BY id DESC LIMIT 0, 1`);
 
     return row[0];
 }

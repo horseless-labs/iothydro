@@ -1,6 +1,7 @@
 const mysql = require('mysql2/promise');
 const config = require('../config');
 
+// Function to query the database
 async function query(sql, params) {
     const conn = await mysql.createConnection(config.db);
     const [results, ] = await conn.execute(sql, params);
