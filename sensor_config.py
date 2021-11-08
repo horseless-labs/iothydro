@@ -1,3 +1,4 @@
+sleep_duration = 600.0
 readings_delay = 2.0
 readings_num = 10.0
 

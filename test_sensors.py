@@ -1,3 +1,10 @@
+"""
+##### ATTENTION #####
+This script is meant to run on a Raspberry Pi 4. As you can see below,
+it imports several libraries to that effect. It isn't plug-and-play with a
+given computer.
+"""
+
 import time
 import cv2
 import RPi.GPIO as GPIO
@@ -18,11 +25,13 @@ DHT_SENSOR = Adafruit_DHT.DHT11
 
 WEBCAM_DW3_DW4 = cv2.VideoCapture(0)
 
+# Setting this up for future expansion: the current plan has it that there
+# will be 4-5 deep water systems in need of monitoring shortly.
 for deep_water in DW:
     GPIO.setup(deep_water[0], GPIO.IN)
     GPIO.setup(deep_water[1], GPIO.OUT)
 
-# Add code to convert these distances into volumes for each of
+# TODO: Add code to convert these distances into volumes for each of
 # the deep water bins
 def distance(ECHO, TRIG):
     GPIO.output(TRIG, False)
@@ -46,6 +55,7 @@ def distance(ECHO, TRIG):
 
     return round(distance, 1)
 
+# Get a single reading from the DHT11 sensor
 def temp_and_hum():
     hum, temp = Adafruit_DHT.read(DHT_SENSOR, DHT_PIN)
     if hum is not None and temp is not None:
@@ -53,7 +63,10 @@ def temp_and_hum():
     else:
         return [0, 0]
 
-# Clarify that this the readings here are for temperature and humidity
+# Get a number of temperature and humidity readings that is specified in
+# the sensor_config.py file.
+# Multiple readings are needed because the sensor has occasional one-off
+# failures that need to be rounded out.
 def avg_readings():
     hums = []
     temps = []
@@ -75,6 +88,8 @@ def avg_readings():
     temp_avg = sum(temps)/th_count
     return [temp_avg, hum_avg]
 
+# Insert readings into MySQL database, currently iothydro_db
+# TODO: try except statement here.
 def insert_readings(conn, readings):
     sql = "INSERT INTO auto_readings (date_and_time," \
         "dw3_volume," \
@@ -90,6 +105,7 @@ def insert_readings(conn, readings):
     return cursor.lastrowid
 
 if __name__ == '__main__':
+    # Attempt connection to the database.
     try:
         connection = database.connect(
             user=username,
@@ -100,22 +116,39 @@ if __name__ == '__main__':
         print("Could not establish a connection to the database")
         exit()
 
+    # Try to take readings and insert them into the database.
     try:
+        # TODO: replace this loop with a schedule and a pause mechanism
+        # TODO: move the camera to a schedule, and possibly use the most
+        #       recent as a placeholder in the database. They will only
+        #       be black when the lights are out.
         while(True):
+            # readings here is temp and humidity
             readings = avg_readings()
+
             dw3_vol = distance(DW3[0], DW3[1])
             dw4_vol = distance(DW4[0], DW4[1])
 
+            """
             print(readings)
             print(dw3_vol)
             print(dw4_vol)
-            
+            """
+
+            # Time format needed for compatibility with MySQL DATETIME
             current_time = time.strftime('%Y-%m-%d %H:%M:%S')
+
+            # Filename of the image
+            # Images themselves are not stored in the database.
+            # They can be found in the images/ directory
             image_fh = "DW3_DW4-" + current_time + ".jpg"
 
+            # Capture a single frame and write it to images/
             ret, frame = WEBCAM_DW3_DW4.read()
             cv2.imwrite("images/" + image_fh, frame)
 
+            # Easiest way to do this given the way MySQL needs the params
+            # to be inserted. It's not a big deal; don't touch it.
             params = []
 
             params.append(current_time)
@@ -127,8 +160,11 @@ if __name__ == '__main__':
 
             insert_readings(connection, params)
             print("Insertion complete")
-            print("Sleeping for 5 seconds")
-            time.sleep(5)
+
+            # Wait 10 minutes before taking more readings.
+            # This level of granularity might be unnecessary for our purposes.
+            print(f"Sleeping for {sleep_duration} seconds.")
+            time.sleep(sleep_duration)
 
         GPIO.cleanup()
         WEBCAM_DW3_DW4.release()
