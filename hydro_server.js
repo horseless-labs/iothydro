@@ -17,24 +17,32 @@ let db = mysql.createConnection({
 	database: process.env.MYSQL_DATABASE,
 });
 
-let sql = "SELECT * FROM readings ORDER BY id DESC LIMIT 0,1";
+let sql = "SELECT * FROM auto_readings ORDER BY id DESC LIMIT 0,1";
 let timestamp = ''
 let temp = ''
 let hum = ''
-let distance = ''
+let distance1 = ''
+let distance2 = ''
 let outputs = ''
+let img_path = "ueg.jpg"
+
 db.connect(function(err) {
 	if (err) throw err;
 
 	db.query(sql, function(err, result) {
 		if (err) throw err
 		outputs = result
-		timestamp = result[0].timestamp
+		timestamp = result[0].date_and_time
 		temp = result[0].temperature
 		hum = result[0].humidity
-		distance = result[0].distance
+		distance1 = result[0].dw3_volume
+		distance2 = result[0].dw4_volume
+		//img_path = result[0].dw3_and_dw4_image
+		console.log(img_path)
 	})
 })
+
+app.use(express.static('images'))
 
 app.get('/', (req, res) => {
 	res.send(`
@@ -47,9 +55,14 @@ app.get('/', (req, res) => {
 		</head>
 		<body>
 		<h1>Most Recent Sensor Readings</h1>
-		<p>${timestamp}, ${temp}, ${hum}, ${distance}</p>
+		<p>${timestamp}, ${temp}, ${hum}, ${distance1}, ${distance2}</p>
+		<img src=${img_path} alt="Image failed to load">
 		</body>
 		</html>`)
 });
+
+app.get('/image', (req, res) => {
+	res.sendFile(__dirname + "/index.html");
+})
 
 app.listen(5000, () => console.log('http:localhost:5000'));
