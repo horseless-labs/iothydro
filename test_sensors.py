@@ -34,8 +34,9 @@ for deep_water in DW:
 # TODO: Add code to convert these distances into volumes for each of
 # the deep water bins
 def distance(ECHO, TRIG):
+    # Power cycle the pin for calibration purposes
     GPIO.output(TRIG, False)
-    time.sleep(2)
+    time.sleep(readings_delay)
 
     GPIO.output(TRIG, True)
     time.sleep(0.00001)
@@ -61,6 +62,7 @@ def temp_and_hum():
     if hum is not None and temp is not None:
         return [temp, hum]
     else:
+        # Might reconsider this.
         return [0, 0]
 
 # Get a number of temperature and humidity readings that is specified in
