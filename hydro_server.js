@@ -24,7 +24,8 @@ let hum = ''
 let distance1 = ''
 let distance2 = ''
 let outputs = ''
-let img_path = "ueg.jpg"
+//let img_path = "ueg.jpg"
+let img_path = "hell-fire.jpg"
 
 db.connect(function(err) {
 	if (err) throw err;
@@ -37,13 +38,14 @@ db.connect(function(err) {
 		hum = result[0].humidity
 		distance1 = result[0].dw3_volume
 		distance2 = result[0].dw4_volume
-		//img_path = result[0].dw3_and_dw4_image
+		//img_path += result[0].dw3_and_dw4_image
 		console.log(img_path)
 	})
 })
 
 app.use(express.static('images'))
 
+// HTML displahy of the latest readings
 app.get('/', (req, res) => {
 	res.send(`
 		<!DOCTYPE html>
@@ -56,11 +58,20 @@ app.get('/', (req, res) => {
 		<body>
 		<h1>Most Recent Sensor Readings</h1>
 		<p>${timestamp}, ${temp}, ${hum}, ${distance1}, ${distance2}</p>
-		<img src=${img_path} alt="Image failed to load">
+		<img src="${img_path}" alt="Cannot load image">
 		</body>
 		</html>`)
 });
 
+// JSON representation of latest database readings
+// Here to be accessed from offsite
+app.get('/raw', (req, res) => {
+	res.json(
+		{'timestamp': timestamp, 'temperature': temp, 'humidity': hum, 'distance1': distance1, 'distance2': distance2, 'img_path': img_path}
+	)
+})
+
+// HTML access of a single image
 app.get('/image', (req, res) => {
 	res.sendFile(__dirname + "/index.html");
 })

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import React from 'react';
 import FetchSensorReadings from './components/fetchSensorReadings';
 
-const sensorUrl = "http://iothydro.ddns.net/latest-readings";
+// const sensorUrl = "http://iothydro.ddns.net/latest-readings";
+const sensorUrl = "iothydro.ddns.net";
 
 function App() {
     return (
